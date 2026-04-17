@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sintática Mágica</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #4FC3F7;
+    --sky-dark: #0288D1;
+    --cloud: #fff;
+    --sun: #FFD54F;
+    --grass: #66BB6A;
+    --grass-dark: #388E3C;
+    --purple: #BA68C8;
+    --purple-dark: #7B1FA2;
+    --coral: #FF7043;
+    --coral-dark: #BF360C;
+    --teal: #26A69A;
+    --teal-dark: #00695C;
+    --amber: #FFA726;
+    --red: #EF5350;
+    --green: #66BB6A;
+    --bg: #E3F2FD;
+    --card: #fff;
+    --text: #1A237E;
+    --text-soft: #5C6BC0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, #B3E5FC 0%, #E3F2FD 40%, #C8E6C9 100%);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #1565C0 0%, #42A5F5 60%, #26C6DA 100%);
+    padding: 2.5rem 2rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; bottom: -2px; left: 0; right: 0;
+    height: 60px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23E3F2FD' d='M0,30 Q360,0 720,30 Q1080,60 1440,30 L1440,60 L0,60Z'/%3E%3C/svg%3E") no-repeat bottom;
+    background-size: cover;
+  }
+  .stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 2s infinite alternate; }
+  @keyframes twinkle { from { opacity: 0.2; transform: scale(1); } to { opacity: 0.9; transform: scale(1.3); } }
+
+  header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
+  }
+  header p {
+    color: rgba(255,255,255,0.9);
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    position: relative; z-index: 1;
+  }
+  .badges { display: flex; gap: 10px; justify-content: center; margin-top: 1.2rem; flex-wrap: wrap; position: relative; z-index: 1; }
+  .badge {
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 999px;
+    padding: 5px 16px;
+    font-size: 0.85rem;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    padding: 1.5rem 1rem 0.5rem;
+  }
+  .nav-btn {
+    background: var(--card);
+    border: 2.5px solid transparent;
+    border-radius: 999px;
+    padding: 9px 22px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text);
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  }
+  .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.13); }
+  .nav-btn.active { background: #1565C0; color: #fff; border-color: #1565C0; }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 2rem 1rem 4rem; max-width: 960px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── APRENDER ── */
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.8rem; font-weight: 800;
+    text-align: center; margin-bottom: 1.5rem;
+    color: #1565C0;
+  }
+
+  .func-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+  .func-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 1.4rem 1.5rem;
+    border: 3px solid transparent;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .func-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.13); }
+  .func-card .icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .func-card h3 { font-family: 'Baloo 2', cursive; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .func-card p { font-size: 0.9rem; color: #555; line-height: 1.5; }
+  .func-card .exemplo { margin-top: 0.8rem; padding: 0.6rem 0.9rem; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
+  .func-card .subtipo { display: inline-block; margin-top: 6px; margin-right: 6px; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+
+  .c-sujeito { border-color: #42A5F5; }
+  .c-sujeito h3 { color: #1565C0; }
+  .c-sujeito .exemplo { background: #E3F2FD; color: #1565C0; }
+  .c-sujeito .subtipo { background: #BBDEFB; color: #1565C0; }
+
+  .c-predicado { border-color: #66BB6A; }
+  .c-predicado h3 { color: #2E7D32; }
+  .c-predicado .exemplo { background: #E8F5E9; color: #2E7D32; }
+
+  .c-vocativo { border-color: #FFA726; }
+  .c-vocativo h3 { color: #E65100; }
+  .c-vocativo .exemplo { background: #FFF3E0; color: #E65100; }
+
+  .c-comp-d { border-color: #AB47BC; }
+  .c-comp-d h3 { color: #6A1B9A; }
+  .c-comp-d .exemplo { background: #F3E5F5; color: #6A1B9A; }
+
+  .c-comp-i { border-color: #EF5350; }
+  .c-comp-i h3 { color: #B71C1C; }
+  .c-comp-i .exemplo { background: #FFEBEE; color: #B71C1C; }
+
+  /* pergunta do tooltip */
+  .tip-box {
+    background: #FFFDE7;
+    border: 2px dashed #FFD54F;
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #5D4037;
+    font-weight: 600;
+  }
+  .tip-box strong { color: #E65100; }
+
+  /* ── JOGO NUVENS ── */
+  #game-nuvens { user-select: none; }
+  .game-header { text-align: center; margin-bottom: 1rem; }
+  .score-bar { display: flex; justify-content: center; gap: 20px; margin-bottom: 1.2rem; }
+  .score-pill {
+    background: var(--card); border-radius: 999px; padding: 6px 20px;
+    font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 1rem;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .sky-area {
+    background: linear-gradient(180deg, #B3E5FC 0%, #E3F2FD 100%);
+    border-radius: 24px;
+    min-height: 220px;
+    position: relative;
+    overflow: hidden;
+    padding: 1rem;
+    border: 3px solid #B0BEC5;
+    margin-bottom: 1.2rem;
+  }
+  .cloud-item {
+    position: absolute;
+    background: white;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    cursor: grab;
+    border: 2.5px solid #B0BEC5;
+    transition: box-shadow 0.2s;
+    z-index: 10;
+    white-space: nowrap;
+    animation: float 3s ease-in-out infinite;
+  }
+  .cloud-item:active { cursor: grabbing; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 20; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+  .baskets { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .basket {
+    background: var(--card);
+    border-radius: 20px;
+    border: 3px dashed #B0BEC5;
+    padding: 1rem 1.5rem;
+    min-width: 160px;
+    min-height: 100px;
+    text-align: center;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1.1rem;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .basket .basket-icon { font-size: 2rem; display: block; margin-bottom: 4px; }
+  .basket.dragover { border-style: solid; transform: scale(1.04); }
+  .basket[data-type="Sujeito"] { color: #1565C0; }
+  .basket[data-type="Sujeito"].dragover { background: #E3F2FD; border-color: #42A5F5; }
+  .basket[data-type="Predicado"] { color: #2E7D32; }
+  .basket[data-type="Predicado"].dragover { background: #E8F5E9; border-color: #66BB6A; }
+  .basket[data-type="Vocativo"] { color: #E65100; }
+  .basket[data-type="Vocativo"].dragover { background: #FFF3E0; border-color: #FFA726; }
+  .basket[data-type="Complemento Direto"] { color: #6A1B9A; }
+  .basket[data-type="Complemento Direto"].dragover { background: #F3E5F5; border-color: #AB47BC; }
+  .basket[data-type="Complemento Indireto"] { color: #B71C1C; }
+  .basket[data-type="Complemento Indireto"].dragover { background: #FFEBEE; border-color: #EF5350; }
+
+  .pergaminho {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
+    background: #FFFDE7;
+    border: 3px solid #FFD54F;
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    max-width: 340px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    font-family: 'Baloo 2', cursive;
+  }
+  .pergaminho.show { transform: translate(-50%,-50%) scale(1); }
+  .pergaminho h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .pergaminho p { font-size: 0.95rem; color: #5D4037; line-height: 1.5; }
+  .pergaminho .result-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .pergaminho button {
+    margin-top: 1rem;
+    background: #1565C0; color: #fff;
+    border: none; border-radius: 999px;
+    padding: 8px 24px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+  }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 999; display: none; }
+  .overlay.show { display: block; }
+
+  .next-cloud-btn {
+    display: block; margin: 0 auto;
+    background: #1565C0; color: #fff;
+    border: none; border-radius: 999px;
+    padding: 10px 28px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .next-cloud-btn:hover { background: #0D47A1; transform: translateY(-2px); }
+
+  /* ── JOGO BATALHA ── */
+  .battle-area { max-width: 520px; margin: 0 auto; }
+  .card-stage { perspective: 800px; height: 220px; margin: 1.5rem 0; }
+  .card-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 2, 0.55, 0.94);
+  }
+  .card-inner.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; inset: 0;
+    border-radius: 24px;
+    backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    font-family: 'Baloo 2', cursive;
+  }
+  .card-front {
+    background: linear-gradient(135deg, #1565C0, #42A5F5);
+    color: #fff;
+    font-size: 1.15rem; font-weight: 700;
+    box-shadow: 0 8px 28px rgba(21,101,192,0.3);
+    border: 3px solid rgba(255,255,255,0.3);
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card-front .frase-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.75; }
+  .card-back { backface-visibility: hidden; transform: rotateY(180deg); }
+  .card-back.correct {
+    background: linear-gradient(135deg, #2E7D32, #66BB6A);
+    color: #fff; font-size: 1rem; font-weight: 700;
+    box-shadow: 0 8px 28px rgba(46,125,50,0.35);
+    flex-direction: column; gap: 8px;
+  }
+  .card-back.wrong {
+    background: linear-gradient(135deg, #B71C1C, #EF5350);
+    color: #fff; font-size: 1rem; font-weight: 700;
+    box-shadow: 0 8px 28px rgba(183,28,28,0.35);
+    flex-direction: column; gap: 8px;
+  }
+  .options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 1rem 0; }
+  .opt-btn {
+    background: var(--card);
+    border: 3px solid transparent;
+    border-radius: 14px;
+    padding: 10px 18px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.95rem; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    color: var(--text);
+  }
+  .opt-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.13); }
+  .opt-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+  .opt-btn.selected-correct { background: #E8F5E9; border-color: #66BB6A; color: #2E7D32; }
+  .opt-btn.selected-wrong { background: #FFEBEE; border-color: #EF5350; color: #B71C1C; }
+  .opt-btn.reveal-correct { background: #E8F5E9; border-color: #66BB6A; color: #2E7D32; }
+
+  .battle-controls { text-align: center; margin-top: 1rem; }
+  .battle-controls button {
+    background: #1565C0; color: #fff;
+    border: none; border-radius: 999px;
+    padding: 10px 28px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .battle-controls button:hover { background: #0D47A1; }
+  .battle-controls button.show { display: inline-block; }
+
+  .progress-bar { background: #E3F2FD; border-radius: 999px; height: 10px; margin-bottom: 1rem; }
+  .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #42A5F5, #26C6DA); transition: width 0.4s; }
+
+  .final-screen {
+    text-align: center; padding: 2rem;
+    background: var(--card); border-radius: 24px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+    display: none;
+  }
+  .final-screen.show { display: block; }
+  .final-screen h2 { font-family: 'Baloo 2', cursive; font-size: 2rem; font-weight: 800; }
+  .final-score { font-size: 3rem; font-weight: 800; color: #1565C0; font-family: 'Baloo 2', cursive; margin: 1rem 0; }
+  .final-screen button {
+    background: #1565C0; color: #fff;
+    border: none; border-radius: 999px;
+    padding: 12px 32px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem; font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+
+  /* ── SOBRE ── */
+  .sobre-card {
+    background: var(--card); border-radius: 24px;
+    padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    max-width: 680px; margin: 0 auto;
+    font-size: 1rem; line-height: 1.7;
+  }
+  .sobre-card h2 { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; color: #1565C0; margin-bottom: 1rem; }
+  .sobre-card p { margin-bottom: 0.8rem; color: #444; }
+  .func-pill {
+    display: inline-block;
+    border-radius: 999px; padding: 4px 14px;
+    font-weight: 700; font-size: 0.85rem; margin: 3px;
+  }
+
+  /* responsivo */
+  @media (max-width: 500px) {
+    .baskets { flex-direction: column; align-items: center; }
+    .basket { min-width: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="stars" id="stars"></div>
+  <div style="font-size:3rem; position:relative; z-index:1; margin-bottom:0.3rem;">✨📚✨</div>
+  <h1>Sintática Mágica</h1>
+  <p>Aprende as funções sintáticas a brincar!</p>
+  <div class="badges">
+    <span class="badge">5.º ano</span>
+    <span class="badge">6.º ano</span>
+    <span class="badge">Português</span>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showSection('aprender')">📖 Aprender</button>
+  <button class="nav-btn" onclick="showSection('nuvens')">☁️ Jogo das Nuvens</button>
+  <button class="nav-btn" onclick="showSection('batalha')">🃏 Batalha de Cartas</button>
+  <button class="nav-btn" onclick="showSection('sobre')">ℹ️ Sobre</button>
+</nav>
+
+<!-- ═══════════════ APRENDER ═══════════════ -->
+<section class="section active" id="sec-aprender">
+  <h2 class="section-title">📖 Funções Sintáticas</h2>
+  <div class="func-grid">
+
+    <div class="func-card c-sujeito">
+      <div class="icon">👤</div>
+      <h3>Sujeito</h3>
+      <p>É o elemento da frase sobre o qual o predicado diz algo. Concorda com o verbo em número e pessoa.</p>
+      <span class="subtipo" style="background:#BBDEFB;color:#1565C0">Simples</span>
+      <span class="subtipo" style="background:#BBDEFB;color:#1565C0">Composto</span>
+      <div class="exemplo">
+        👉 <em>A Maria</em> leu um livro.<br>
+        👉 <em>A Maria e o João</em> jogaram futebol.
+      </div>
+      <div class="tip-box" style="margin-top:0.8rem;font-size:0.82rem">
+        💡 Pergunta: <strong>Quem</strong> fez a ação?
+      </div>
+    </div>
+
+    <div class="func-card c-predicado">
+      <div class="icon">🏃</div>
+      <h3>Predicado</h3>
+      <p>É o que se diz sobre o sujeito. Contém sempre um verbo. Toda a frase que não seja sujeito é predicado!</p>
+      <div class="exemplo">👉 A Maria <em>leu um livro interessante</em>.</div>
+      <div class="tip-box" style="margin-top:0.8rem;font-size:0.82rem">
+        💡 O que <strong>fez</strong> ou <strong>é</strong> o sujeito?
+      </div>
+    </div>
+
+    <div class="func-card c-vocativo">
+      <div class="icon">📣</div>
+      <h3>Vocativo</h3>
+      <p>Serve para chamar ou interpelar alguém diretamente. Fica separado por vírgulas e não faz parte do sujeito nem do predicado.</p>
+      <div class="exemplo">👉 <em>João</em>, vem cá! &nbsp; / &nbsp; Olá, <em>amigos</em>!</div>
+      <div class="tip-box" style="margin-top:0.8rem;font-size:0.82rem">
+        💡 Estou a <strong>chamar</strong> alguém pelo nome?
+      </div>
+    </div>
+
+    <div class="func-card c-comp-d">
+      <div class="icon">🎯</div>
+      <h3>Complemento Direto</h3>
+      <p>Completa o sentido do verbo <strong>sem</strong> preposição obrigatória. Pode ser substituído por <em>o / a / os / as</em>.</p>
+      <div class="exemplo">👉 A Maria comeu <em>um bolo</em>. → comeu-<em>o</em></div>
+      <div class="tip-box" style="margin-top:0.8rem;font-size:0.82rem">
+        💡 Pergunta: O quê? / Quem?
+      </div>
+    </div>
+
+    <div class="func-card c-comp-i">
+      <div class="icon">🎁</div>
+      <h3>Complemento Indireto</h3>
+      <p>Completa o sentido do verbo <strong>com</strong> preposição obrigatória (a, ao, aos…). Pode ser substituído por <em>lhe / lhes</em>.</p>
+      <div class="exemplo">👉 O Pedro deu um presente <em>à mãe</em>. → deu-<em>lhe</em></div>
+      <div class="tip-box" style="margin-top:0.8rem;font-size:0.82rem">
+        💡 Pergunta: A quem? / Para quem?
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ JOGO NUVENS ═══════════════ -->
+<section class="section" id="sec-nuvens">
+  <div id="game-nuvens">
+    <h2 class="section-title">☁️ Jogo das Nuvens Sintáticas</h2>
+    <p style="text-align:center;color:#555;margin-bottom:1rem;font-size:0.95rem">Arrasta cada nuvem para o cesto correto!</p>
+
+    <div class="score-bar">
+      <div class="score-pill">✅ Certas: <span id="n-score">0</span></div>
+      <div class="score-pill">❌ Erros: <span id="n-errors">0</span></div>
+    </div>
+
+    <div class="sky-area" id="sky-area"></div>
+
+    <div class="baskets" id="baskets">
+      <div class="basket" data-type="Sujeito" id="b-Sujeito">
+        <span class="basket-icon">👤</span>Sujeito
+      </div>
+      <div class="basket" data-type="Predicado" id="b-Predicado">
+        <span class="basket-icon">🏃</span>Predicado
+      </div>
+      <div class="basket" data-type="Vocativo" id="b-Vocativo">
+        <span class="basket-icon">📣</span>Vocativo
+      </div>
+      <div class="basket" data-type="Complemento Direto" id="b-CD">
+        <span class="basket-icon">🎯</span>Compl. Direto
+      </div>
+      <div class="basket" data-type="Complemento Indireto" id="b-CI">
+        <span class="basket-icon">🎁</span>Compl. Indireto
+      </div>
+    </div>
+
+    <button class="next-cloud-btn" id="next-cloud-btn" onclick="spawnCloud()">Nova nuvem ☁️</button>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="closePergaminho()"></div>
+  <div class="pergaminho" id="pergaminho">
+    <div class="result-icon" id="p-icon"></div>
+    <h3 id="p-title"></h3>
+    <p id="p-desc"></p>
+    <button onclick="closePergaminho()">Continuar ➡️</button>
+  </div>
+</section>
+
+<!-- ═══════════════ BATALHA CARTAS ═══════════════ -->
+<section class="section" id="sec-batalha">
+  <h2 class="section-title">🃏 Batalha de Cartas</h2>
+  <p style="text-align:center;color:#555;margin-bottom:1rem;font-size:0.95rem">Escolhe a função sintática correta!</p>
+
+  <div class="battle-area">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="score-bar">
+      <div class="score-pill">✅ <span id="b-score">0</span></div>
+      <div class="score-pill">❌ <span id="b-errors">0</span></div>
+      <div class="score-pill">🃏 <span id="b-num">1</span>/10</div>
+    </div>
+
+    <div class="card-stage" id="card-stage">
+      <div class="card-inner" id="card-inner">
+        <div class="card-face card-front" id="card-front">
+          <span class="frase-label">Identifica a função sintática destacada</span>
+          <span id="card-text"></span>
+        </div>
+        <div class="card-face card-back" id="card-back"></div>
+      </div>
+    </div>
+
+    <div class="options" id="options"></div>
+
+    <div class="battle-controls">
+      <button id="next-btn" onclick="nextQuestion()">Próxima carta ➡️</button>
+    </div>
+
+    <div class="final-screen" id="final-screen">
+      <div style="font-size:3rem">🎉</div>
+      <h2>Jogo terminado!</h2>
+      <div class="final-score" id="final-score"></div>
+      <p id="final-msg" style="color:#555;font-size:1rem"></p>
+      <button onclick="resetBattle()">Jogar outra vez 🔄</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SOBRE ═══════════════ -->
+<section class="section" id="sec-sobre">
+  <h2 class="section-title">ℹ️ Sobre este Site</h2>
+  <div class="sobre-card">
+    <h2>✨ O que é a Sintática Mágica?</h2>
+    <p>Este site foi criado para ajudar os alunos do <strong>5.º e 6.º ano</strong> a aprender as <strong>funções sintáticas</strong> de forma divertida e interativa!</p>
+    <p>Aqui podes explorar as definições, fazer jogos e testar os teus conhecimentos a qualquer hora.</p>
+    <h2 style="margin-top:1.2rem">📚 O que aprendes aqui?</h2>
+    <p>
+      <span class="func-pill" style="background:#E3F2FD;color:#1565C0">👤 Sujeito simples</span>
+      <span class="func-pill" style="background:#E3F2FD;color:#1565C0">👥 Sujeito composto</span>
+      <span class="func-pill" style="background:#E8F5E9;color:#2E7D32">🏃 Predicado</span>
+      <span class="func-pill" style="background:#FFF3E0;color:#E65100">📣 Vocativo</span>
+      <span class="func-pill" style="background:#F3E5F5;color:#6A1B9A">🎯 Complemento direto</span>
+      <span class="func-pill" style="background:#FFEBEE;color:#B71C1C">🎁 Complemento indireto</span>
+    </p>
+    <h2 style="margin-top:1.2rem">🎮 Os Jogos</h2>
+    <p><strong>☁️ Jogo das Nuvens Sintáticas</strong> — Arrasta partes de frases para o cesto certo. Quando acertas, aparece um pergaminho com a definição!</p>
+    <p><strong>🃏 Batalha de Cartas</strong> — Vê a frase e escolhe a função correta. A carta vira-se: verde se acertares, vermelha se errares — com explicação!</p>
+  </div>
+</section>
+
+<script>
+/* ══════════════ STARS ══════════════ */
+const starsDiv = document.getElementById('stars');
+for (let i = 0; i < 22; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 4 + 2;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*2}s;animation-duration:${1.5+Math.random()*2}s`;
+  starsDiv.appendChild(s);
+}
+
+/* ══════════════ NAV ══════════════ */
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'nuvens' && !cloudActive) spawnCloud();
+  if (id === 'batalha' && !battleStarted) initBattle();
+}
+
+/* ══════════════ JOGO NUVENS ══════════════ */
+const cloudData = [
+  { text: 'O cão', type: 'Sujeito', def: 'O sujeito é quem realiza a ação. Pergunta: Quem ladrou? → O cão.' },
+  { text: 'O gato e o cão', type: 'Sujeito', def: 'Sujeito composto: dois ou mais elementos que realizam a ação.' },
+  { text: 'correu muito rápido', type: 'Predicado', def: 'O predicado diz o que o sujeito fez. Tem sempre um verbo.' },
+  { text: 'comeu o bolo todo', type: 'Predicado', def: 'Predicado: contém o verbo e tudo o que se diz sobre o sujeito.' },
+  { text: 'Ana', type: 'Vocativo', def: 'Vocativo: serve para chamar ou interpelar alguém diretamente.' },
+  { text: 'querida professora', type: 'Vocativo', def: 'Vocativo: fica separado por vírgulas e interpela alguém.' },
+  { text: 'um livro novo', type: 'Complemento Direto', def: 'Complemento Direto: responde a "o quê?". Substituível por "o/a".' },
+  { text: 'a sua mochila', type: 'Complemento Direto', def: 'Complemento Direto: não tem preposição obrigatória antes.' },
+  { text: 'ao professor', type: 'Complemento Indireto', def: 'Complemento Indireto: responde a "a quem?". Substituível por "lhe".' },
+  { text: 'à avó', type: 'Complemento Indireto', def: 'Complemento Indireto: tem sempre preposição (a, ao, à…).' },
+];
+
+let cloudIdx = 0, cloudActive = false, nScore = 0, nErrors = 0;
+let dragging = null, offsetX = 0, offsetY = 0;
+const shuffled = [...cloudData].sort(() => Math.random() - 0.5);
+
+function spawnCloud() {
+  if (cloudIdx >= shuffled.length) {
+    document.getElementById('sky-area').innerHTML = '<p style="text-align:center;padding:3rem;color:#1565C0;font-family:\'Baloo 2\',cursive;font-weight:700">🎉 Parabéns! Completaste todas as nuvens!</p>';
+    document.getElementById('next-cloud-btn').style.display = 'none';
+    return;
+  }
+  document.getElementById('sky-area').innerHTML = '';
+  const data = shuffled[cloudIdx];
+  const cloud = document.createElement('div');
+  cloud.className = 'cloud-item';
+  cloud.textContent = data.text;
+  cloud.dataset.type = data.type;
+  cloud.dataset.def = data.def;
+  cloud.style.top = '30%';
+  cloud.style.left = '30%';
+  cloud.style.animationDelay = '0s';
+  document.getElementById('sky-area').appendChild(cloud);
+  cloudActive = true;
+  initDrag(cloud);
+  document.getElementById('next-cloud-btn').style.display = 'none';
+}
+
+function initDrag(cloud) {
+  cloud.addEventListener('mousedown', e => { dragging = cloud; const r = cloud.getBoundingClientRect(); offsetX = e.clientX - r.left; offsetY = e.clientY - r.top; cloud.style.animation = 'none'; e.preventDefault(); });
+  cloud.addEventListener('touchstart', e => { dragging = cloud; const t = e.touches[0]; const r = cloud.getBoundingClientRect(); offsetX = t.clientX - r.left; offsetY = t.clientY - r.top; cloud.style.animation = 'none'; }, { passive: true });
+}
+
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const sky = document.getElementById('sky-area').getBoundingClientRect();
+  dragging.style.left = (e.clientX - sky.left - offsetX) + 'px';
+  dragging.style.top = (e.clientY - sky.top - offsetY) + 'px';
+});
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const t = e.touches[0];
+  const sky = document.getElementById('sky-area').getBoundingClientRect();
+  dragging.style.left = (t.clientX - sky.left - offsetX) + 'px';
+  dragging.style.top = (t.clientY - sky.top - offsetY) + 'px';
+}, { passive: true });
+
+document.addEventListener('mouseup', e => checkDrop(e.clientX, e.clientY));
+document.addEventListener('touchend', e => { if (e.changedTouches[0]) checkDrop(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
+
+function checkDrop(cx, cy) {
+  if (!dragging) return;
+  const baskets = document.querySelectorAll('.basket');
+  let dropped = false;
+  baskets.forEach(b => {
+    const r = b.getBoundingClientRect();
+    if (cx > r.left && cx < r.right && cy > r.top && cy < r.bottom) {
+      dropped = true;
+      const correct = dragging.dataset.type === b.dataset.type;
+      showPergaminho(correct, dragging.dataset.type, dragging.dataset.def, b.dataset.type);
+      if (correct) nScore++; else nErrors++;
+      document.getElementById('n-score').textContent = nScore;
+      document.getElementById('n-errors').textContent = nErrors;
+      dragging.remove();
+      cloudActive = false;
+      cloudIdx++;
+    }
+  });
+  if (!dropped) { dragging.style.animation = 'float 3s ease-in-out infinite'; }
+  dragging = null;
+}
+
+const defMap = {
+  'Sujeito': 'O sujeito indica quem realiza a ação ou de quem se fala. Concorda com o verbo.',
+  'Predicado': 'O predicado diz o que o sujeito faz ou é. Contém sempre um verbo.',
+  'Vocativo': 'O vocativo chama ou interpela alguém diretamente, separado por vírgulas.',
+  'Complemento Direto': 'O complemento direto completa o verbo sem preposição. Substituível por o/a/os/as.',
+  'Complemento Indireto': 'O complemento indireto completa o verbo com preposição (a, ao…). Substituível por lhe/lhes.',
+};
+
+function showPergaminho(correct, correctType, specificDef, chosen) {
+  const p = document.getElementById('pergaminho');
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('p-icon').textContent = correct ? '🎉' : '😅';
+  document.getElementById('p-title').textContent = correct ? 'Muito bem!' : 'Quase lá...';
+  document.getElementById('p-desc').textContent = correct
+    ? specificDef
+    : `Não é ${chosen}. Era "${correctType}". ${defMap[correctType]}`;
+  p.classList.add('show');
+}
+
+function closePergaminho() {
+  document.getElementById('pergaminho').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('next-cloud-btn').style.display = 'block';
+}
+
+/* ══════════════ BATALHA CARTAS ══════════════ */
+const questions = [
+  { frase: '🔵 A professora explicou a matéria.', highlight: 'A professora', answer: 'Sujeito', options: ['Sujeito', 'Predicado', 'Vocativo'], wrong_exp: 'Pergunta: Quem explicou? → A professora. É o sujeito!' },
+  { frase: '🔵 O Pedro trouxe um bolo para a festa.', highlight: 'um bolo', answer: 'Complemento Direto', options: ['Complemento Direto', 'Complemento Indireto', 'Sujeito'], wrong_exp: 'Sem preposição obrigatória e responde a "o quê?". É complemento direto!' },
+  { frase: '🔵 Maria, vem cá!', highlight: 'Maria', answer: 'Vocativo', options: ['Sujeito', 'Vocativo', 'Complemento Direto'], wrong_exp: 'Está separado por vírgula e chama alguém. É vocativo!' },
+  { frase: '🔵 A Ana e o Rui ganharam o jogo.', highlight: 'A Ana e o Rui', answer: 'Sujeito', options: ['Sujeito composto', 'Predicado', 'Vocativo'], wrong_exp: 'Dois elementos realizam a ação. É sujeito composto!', correct_map: 'Sujeito' },
+  { frase: '🔵 O pai deu um presente à filha.', highlight: 'à filha', answer: 'Complemento Indireto', options: ['Complemento Direto', 'Complemento Indireto', 'Predicado'], wrong_exp: 'Tem preposição "à" e responde a "a quem?". É complemento indireto!' },
+  { frase: '🔵 O cão latiu muito alto.', highlight: 'latiu muito alto', answer: 'Predicado', options: ['Predicado', 'Sujeito', 'Vocativo'], wrong_exp: 'É o que se diz sobre o sujeito. Tem o verbo "latiu". É predicado!' },
+  { frase: '🔵 Amigos, sejam bem-vindos!', highlight: 'Amigos', answer: 'Vocativo', options: ['Sujeito', 'Vocativo', 'Complemento Direto'], wrong_exp: 'Está separado por vírgula e interpela alguém. É vocativo!' },
+  { frase: '🔵 A Marta leu o livro de Sophia.', highlight: 'o livro', answer: 'Complemento Direto', options: ['Complemento Indireto', 'Complemento Direto', 'Sujeito'], wrong_exp: 'Responde a "o quê?" sem preposição obrigatória. É complemento direto!' },
+  { frase: '🔵 O João escreveu uma carta à avó.', highlight: 'à avó', answer: 'Complemento Indireto', options: ['Complemento Direto', 'Predicado', 'Complemento Indireto'], wrong_exp: 'Tem preposição "à" e responde a "a quem?". É complemento indireto!' },
+  { frase: '🔵 Os alunos estudaram toda a tarde.', highlight: 'Os alunos', answer: 'Sujeito', options: ['Predicado', 'Sujeito', 'Vocativo'], wrong_exp: 'Pergunta: Quem estudou? → Os alunos. É o sujeito!' },
+].sort(() => Math.random() - 0.5).slice(0, 10);
+
+let bIdx = 0, bScore = 0, bErrors = 0, battleStarted = false, answered = false;
+
+function initBattle() {
+  battleStarted = true;
+  bIdx = 0; bScore = 0; bErrors = 0; answered = false;
+  document.getElementById('final-screen').classList.remove('show');
+  document.getElementById('card-stage').style.display = '';
+  document.getElementById('options').style.display = '';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (bIdx >= questions.length) { showFinal(); return; }
+  const q = questions[bIdx];
+  answered = false;
+  const ci = document.getElementById('card-inner');
+  ci.classList.remove('flipped');
+  const cb = document.getElementById('card-back');
+  cb.className = 'card-face card-back';
+  cb.innerHTML = '';
+  document.getElementById('card-text').textContent = q.frase.replace(q.highlight, `"${q.highlight}"`);
+  document.getElementById('b-num').textContent = (bIdx + 1) + '/10';
+  document.getElementById('prog-fill').style.width = (bIdx / 10 * 100) + '%';
+  document.getElementById('next-btn').classList.remove('show');
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(opt, btn, q);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAnswer(chosen, btn, q) {
+  if (answered) return;
+  answered = true;
+  const correct = chosen === q.answer || (q.correct_map && chosen === q.correct_map + ' composto' && q.answer === 'Sujeito');
+  const realCorrect = q.answer;
+  const ci = document.getElementById('card-inner');
+  const cb = document.getElementById('card-back');
+
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === realCorrect || (q.correct_map && b.textContent.includes(q.correct_map))) b.classList.add('reveal-correct');
+  });
+
+  if (correct) {
+    bScore++;
+    btn.classList.add('selected-correct');
+    cb.className = 'card-face card-back correct';
+    cb.innerHTML = `<span style="font-size:2rem">✅</span><span>Correto! "${q.highlight}" é <strong>${q.answer}</strong>.</span>`;
+    document.getElementById('b-score').textContent = bScore;
+  } else {
+    bErrors++;
+    btn.classList.add('selected-wrong');
+    cb.className = 'card-face card-back wrong';
+    cb.innerHTML = `<span style="font-size:2rem">❌</span><span>${q.wrong_exp}</span>`;
+    document.getElementById('b-errors').textContent = bErrors;
+  }
+
+  setTimeout(() => ci.classList.add('flipped'), 80);
+  setTimeout(() => document.getElementById('next-btn').classList.add('show'), 700);
+}
+
+function nextQuestion() {
+  bIdx++;
+  renderQuestion();
+}
+
+function showFinal() {
+  document.getElementById('card-stage').style.display = 'none';
+  document.getElementById('options').style.display = 'none';
+  document.getElementById('next-btn').classList.remove('show');
+  document.getElementById('prog-fill').style.width = '100%';
+  const fs = document.getElementById('final-screen');
+  fs.classList.add('show');
+  document.getElementById('final-score').textContent = bScore + '/10';
+  const msgs = [
+    [0,3,'Não desistas! Volta à secção "Aprender" e tenta novamente. 💪'],
+    [4,6,'Bom esforço! Continua a praticar. 📚'],
+    [7,8,'Muito bem! Estás quase a ser um(a) especialista! ⭐'],
+    [9,10,'INCRÍVEL! És um(a) mestre das funções sintáticas! 🏆🎉'],
+  ];
+  const msg = msgs.find(([a,b]) => bScore >= a && bScore <= b);
+  document.getElementById('final-msg').textContent = msg ? msg[2] : '';
+}
+
+function resetBattle() {
+  questions.sort(() => Math.random() - 0.5);
+  initBattle();
+}
+</script>
+</body>
+</html>
