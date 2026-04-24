@@ -373,21 +373,13 @@ function trySpawn(){
 }
 
 function buildCloudSVG(w,h){
-  const sw=2.5; // stroke width
+  const cx=w/2,cy=h*0.65,rx=w*0.48,ry=h*0.38;
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" class="cloud-svg">
-    <defs>
-      <filter id="cf" x="-5%" y="-5%" width="110%" height="110%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"/>
-        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-      </filter>
-    </defs>
-    <g filter="url(#cf)">
-      <ellipse cx="${w*0.50}" cy="${h*0.72}" rx="${w*0.42}" ry="${h*0.26}" fill="white" stroke="#ccc" stroke-width="${sw}"/>
-      <ellipse cx="${w*0.28}" cy="${h*0.60}" rx="${w*0.20}" ry="${h*0.22}" fill="white" stroke="#ccc" stroke-width="${sw}"/>
-      <ellipse cx="${w*0.46}" cy="${h*0.48}" rx="${w*0.24}" ry="${h*0.26}" fill="white" stroke="#ccc" stroke-width="${sw}"/>
-      <ellipse cx="${w*0.70}" cy="${h*0.56}" rx="${w*0.19}" ry="${h*0.20}" fill="white" stroke="#ccc" stroke-width="${sw}"/>
-      <rect x="${w*0.07}" y="${h*0.65}" width="${w*0.86}" height="${h*0.20}" fill="white"/>
-    </g>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="white"/>
+    <ellipse cx="${cx-rx*0.32}" cy="${cy-ry*0.58}" rx="${rx*0.4}" ry="${ry*0.58}" fill="white"/>
+    <ellipse cx="${cx+rx*0.28}" cy="${cy-ry*0.48}" rx="${rx*0.37}" ry="${ry*0.5}" fill="white"/>
+    <ellipse cx="${cx-rx*0.65}" cy="${cy-ry*0.18}" rx="${rx*0.27}" ry="${ry*0.35}" fill="white"/>
+    <ellipse cx="${cx+rx*0.63}" cy="${cy-ry*0.14}" rx="${rx*0.29}" ry="${ry*0.38}" fill="white"/>
   </svg>`;
 }
 
